@@ -1398,3 +1398,51 @@ yaml_document_append_mapping_pair(yaml_document_t *document,
     return 1;
 }
 
+YAML_DECLARE(yaml_event_type_t)
+yaml_event_type(yaml_event_t *event) {
+    return event->type;
+}
+
+YAML_DECLARE(yaml_scalar_style_t)
+yaml_event_scalar_style(yaml_event_t *event) {
+    return event->data.scalar.style;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_scalar_value(yaml_event_t *event) {
+    return event->data.scalar.value;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_scalar_anchor(yaml_event_t *event) {
+    return event->data.scalar.anchor;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_scalar_tag(yaml_event_t *event) {
+    return event->data.scalar.anchor;
+}
+
+YAML_DECLARE(yaml_mapping_style_t)
+yaml_event_mapping_style(yaml_event_t *event) {
+    return event->data.mapping_start.style;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_mapping_anchor(yaml_event_t *event) {
+    return event->data.mapping_start.anchor;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_mapping_tag(yaml_event_t *event) {
+    return event->data.mapping_start.anchor;
+}
+
+YAML_DECLARE(yaml_sequence_style_t)
+yaml_event_sequence_style(yaml_event_t *event) {
+    return event->data.sequence_start.style;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_sequence_anchor(yaml_event_t *event) {
+    return event->data.sequence_start.anchor;
+}
+YAML_DECLARE(yaml_char_t*)
+yaml_event_sequence_tag(yaml_event_t *event) {
+    return event->data.sequence_start.anchor;
+}
+

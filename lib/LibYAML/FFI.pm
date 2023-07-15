@@ -199,7 +199,7 @@ package LibYAML::FFI::Event {
     sub to_hash {
         my ($self) = @_;
         my %hash = ();
-        my $type = $self->type;
+        my $type = $self->yaml_event_type;
         if ($type == LibYAML::FFI::event_type::YAML_STREAM_START_EVENT()) {
             $hash{name} = 'stream_start_event';
         }
@@ -220,39 +220,36 @@ package LibYAML::FFI::Event {
         }
         elsif ($type == LibYAML::FFI::event_type::YAML_SCALAR_EVENT()) {
             $hash{name} = 'scalar_event';
-            my $scalar = $self->data->scalar;
-            my $val = $scalar->value_str;
+            my $val = $self->yaml_event_scalar_value;
             $hash{value} = $val;
-            if (my $anchor = $scalar->anchor_str) {
+            if (my $anchor = $self->yaml_event_scalar_anchor) {
                 $hash{anchor} = $anchor;
             }
-            if (my $tag = $scalar->tag_str) {
+            if (my $tag = $self->yaml_event_scalar_tag) {
                 $hash{tag} = $tag;
             }
-            $hash{style} = my $style = $scalar->style;
+            $hash{style} = $self->yaml_event_scalar_style;
         }
         elsif ($type == LibYAML::FFI::event_type::YAML_SEQUENCE_START_EVENT()) {
             $hash{name} = 'sequence_start_event';
-            my $sequence_start = $self->data->sequence_start;
-            if (my $anchor = $sequence_start->anchor_str) {
+            if (my $anchor = $self->yaml_event_sequence_anchor) {
                 $hash{anchor} = $anchor;
             }
-            if (my $tag = $sequence_start->tag_str) {
+            if (my $tag = $self->yaml_event_sequence_tag) {
                 $hash{tag} = $tag;
             }
-            $hash{style} = $sequence_start->style;
+            $hash{style} = $self->yaml_event_sequence_style;
         }
         elsif ($type == LibYAML::FFI::event_type::YAML_SEQUENCE_END_EVENT()) {
             $hash{name} = 'sequence_end_event';
         }
         elsif ($type == LibYAML::FFI::event_type::YAML_MAPPING_START_EVENT()) {
-            my $mapping_start = $self->data->mapping_start;
             $hash{name} = 'mapping_start_event';
-            $hash{style} = $mapping_start->style;
-            if (my $anchor = $mapping_start->anchor_str) {
+            $hash{style} = $self->yaml_event_mapping_style;
+            if (my $anchor = $self->yaml_event_mapping_anchor) {
                 $hash{anchor} = $anchor;
             }
-            if (my $tag = $mapping_start->tag_str) {
+            if (my $tag = $self->yaml_event_mapping_anchor) {
                 $hash{tag} = $tag;
             }
         }
@@ -282,11 +279,13 @@ package LibYAML::FFI::Event {
             $str .= " " . $self->data->alias->anchor_str;
         }
         elsif ($self->type == LibYAML::FFI::event_type::YAML_SCALAR_EVENT()) {
-            my $val = $self->data->scalar->value_str;
-            my $anchor = $self->data->scalar->anchor;
-            my $length = $self->data->scalar->length;
-            my $plain_implicit = $self->data->scalar->plain_implicit;
+            my $scalar = $self->data->scalar;
+            my $val = $scalar->value_str;
+            my $anchor = $scalar->anchor;
+            my $length = $scalar->length;
+            my $plain_implicit = $scalar->plain_implicit;
             $str .= sprintf "=VAL >%s< (%d) plain_implicit: %d", $val, $length, $plain_implicit;
+            $scalar = $self->data->scalar;
         }
         elsif ($self->type == LibYAML::FFI::event_type::YAML_SEQUENCE_START_EVENT()) {
             my $style = $self->data->sequence_start->style;
@@ -321,6 +320,20 @@ package LibYAML::FFI::Event {
     $ffi->attach( yaml_stream_start_event_initialize => [qw/
         yaml_event_t yaml_encoding_t
     /] => 'int' );
+    $ffi->attach( yaml_event_type => [qw/ yaml_event_t /] => 'yaml_event_type_t' );
+
+    $ffi->attach( yaml_event_scalar_style => [qw/ yaml_event_t /] => 'yaml_scalar_style_t' );
+    $ffi->attach( yaml_event_scalar_value => [qw/ yaml_event_t /] => 'string' );
+    $ffi->attach( yaml_event_scalar_anchor => [qw/ yaml_event_t /] => 'string' );
+    $ffi->attach( yaml_event_scalar_tag => [qw/ yaml_event_t /] => 'string' );
+
+    $ffi->attach( yaml_event_mapping_style => [qw/ yaml_event_t /] => 'yaml_mapping_style_t' );
+    $ffi->attach( yaml_event_mapping_anchor => [qw/ yaml_event_t /] => 'string' );
+    $ffi->attach( yaml_event_mapping_tag => [qw/ yaml_event_t /] => 'string' );
+
+    $ffi->attach( yaml_event_sequence_style => [qw/ yaml_event_t /] => 'yaml_sequence_style_t' );
+    $ffi->attach( yaml_event_sequence_anchor => [qw/ yaml_event_t /] => 'string' );
+    $ffi->attach( yaml_event_sequence_tag => [qw/ yaml_event_t /] => 'string' );
 }
 
 package LibYAML::FFI::ParserInputString {

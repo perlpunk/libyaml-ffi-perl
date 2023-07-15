@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use Time::HiRes qw/ gettimeofday tv_interval /;
+use Encode;
+use YAML::PP::Parser;
+use YAML::PP::Common;
+use Getopt::Long;
+Getopt::Long::Configure('bundling');
+GetOptions(
+    'help|h' => \my $help,
+    'module|M=s' => \my $module,
+) or usage(1);
+
+usage(0) if $help;
+
+$module ||= 'YAML::PP';
+if ($module eq 'YAML::PP') {
+    $module = 'YAML::PP::Parser';
+}
+elsif ($module eq 'YAML::LibYAML::API::YPP') {
+    require YAML::LibYAML::API::YPP;
+    $module = 'YAML::LibYAML::API::YPP::Parser';
+}
+elsif ($module eq 'YAML::PP::LibYAML') {
+    require YAML::LibYAML::API;
+    require YAML::PP::LibYAML::Parser;
+    warn __PACKAGE__.':'.__LINE__.": ???????? $INC{'YAML/LibYAML/API.pm'}\n";
+    $module = 'YAML::PP::LibYAML::Parser';
+}
+elsif ($module eq 'LibYAML::FFI::YPP') {
+    require LibYAML::FFI::YPP::Parser;
+    $module = 'LibYAML::FFI::YPP::Parser';
+}
+elsif ($module eq 'YAML::PP::Ref') {
+    require YAML::PP::Ref;
+    $module = 'YAML::PP::Ref::Parser';
+}
+
+my $yaml;
+$yaml = do { local $/; <STDIN> };
+$yaml = decode_utf8($yaml);
+my $start = [gettimeofday];
+for (1..20) {
+    my $parser = $module->new(
+        receiver => sub {
+          my ($self, undef, $event) = @_;
+#      warn __PACKAGE__.':'.__LINE__.": ?????????????\n";
+#      print encode_utf8(YAML::PP::Common::event_to_test_suite($event, { flow => 1 })), "\n";
+        },
+    );
+    $parser->parse_string($yaml);
+}
+my $el = tv_interval($start);
+warn __PACKAGE__.':'.__LINE__.": !!!!!!!! $el\n";
+
+sub usage {
+    my ($rc) = @_;
+    print <<"EOM";
+Usage:
+
+    $0 [options] < file
+    $0 [options] file
+
+Options:
+    --module -M  Module to use for parsing. YAML::PP (default),
+                 YAML::PP::LibYAML or YAML::PP::Ref
+EOM
+    exit $rc;
+}

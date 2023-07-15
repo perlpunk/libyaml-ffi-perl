@@ -535,6 +535,7 @@ LibYAML::FFI - FFI binding for C libyaml
 =head1 SYNOPSIS
 
     use LibYAML::FFI;
+    my $parser = LibYAML::FFI::Parser->new;
     my $ok = $parser->yaml_parser_initialize;
     my $input = <<'EOM';
     foo: [

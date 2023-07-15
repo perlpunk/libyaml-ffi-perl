@@ -41,3 +41,14 @@ sub parse {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+LibYAML::FFI::YPP::Parser - Parser glue between YAML::PP and LibYAML::FFI
+

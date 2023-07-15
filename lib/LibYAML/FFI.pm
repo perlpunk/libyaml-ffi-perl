@@ -1,3 +1,4 @@
+# ABSTRACT: FFI binding for C libyaml
 package LibYAML::FFI;
 
 use strict;
@@ -6,6 +7,8 @@ use experimental 'signatures';
 use FFI::Platypus 2.00;
 use FFI::C;
 use YAML::PP::Common;
+
+our $VERSION = '0.000'; # VERSION
 
 my $ffi = FFI::Platypus->new( api => 1 );
 FFI::C->ffi($ffi);
@@ -514,12 +517,67 @@ package LibYAML::FFI::Parser {
     /] => 'int' );
 #    $ffi->attach( yaml_parser_delete => [qw/ yaml_parser_t /] => 'void' );
 
-
 }
 
 
-
-
-
-
 1;
+
+__END__
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+LibYAML::FFI - FFI binding for C libyaml
+
+=head1 SYNOPSIS
+
+    use LibYAML::FFI;
+    my $ok = $parser->yaml_parser_initialize;
+    my $input = <<'EOM';
+    foo: [
+        &ALIAS bar, *ALIAS
+      ]
+    EOM
+    $parser->yaml_parser_set_input_string($input, length($input));
+    my $events;
+    while (1) {
+        my $event = LibYAML::FFI::Event->new;
+        my $ok = $parser->yaml_parser_parse($event);
+        my $str = $event->as_string;
+        print "Event: $str";
+        last unless $ok;
+        last if $event->type == LibYAML::FFI::event_type::YAML_STREAM_END_EVENT;
+    }
+
+=head1 DESCRIPTION
+
+This is a Proof of Concept for now. It uses L<FFI::Platypus> to provide
+a wrapper around the C library libyaml. For now it can only parse, not emit.
+Libyaml sources are included for now, I would like to use L<Alien::LibYAML>
+in the future.
+
+For loading a data structure, see L<LibYAML::FFI::YPP> in this distribution.
+
+=head1 SEE ALSO
+
+=over
+
+=item L<YAML::LibYAML::API>
+
+=item L<YAML::XS>
+
+=item L<YAML::PP::LibYAML>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2023 by Tina Müller
+
+This library is free software and may be distributed under the same terms
+as perl itself.
+
+=cut

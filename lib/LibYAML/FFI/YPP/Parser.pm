@@ -1,3 +1,4 @@
+# ABSTRACT: Parser glue between YAML::PP and LibYAML::FFI
 package LibYAML::FFI::YPP::Parser;
 use strict;
 use warnings;
@@ -5,6 +6,8 @@ use warnings;
 use LibYAML::FFI;
 use LibYAML::FFI::YPP;
 use base 'YAML::PP::Parser';
+
+our $VERSION = '0.000'; # VERSION
 
 sub parse {
     my ($self) = @_;
@@ -22,7 +25,6 @@ sub parse {
     else {
         $parser = LibYAML::FFI::Parser->new;
         my $ok = $parser->yaml_parser_initialize or die "Could not create parser";
-        warn __PACKAGE__.':'.__LINE__.": !!!!!!!!!!!!! created $parser\n";
         my $yaml = $reader->read;
         $parser->yaml_parser_set_input_string($yaml, length($yaml));
         my $event = LibYAML::FFI::Event->new;

@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 use Test2::V0;
 use LibYAML::FFI;
-use Data::Dumper;
 
 subtest parser_objects => sub {
     for my $i (1..100) {

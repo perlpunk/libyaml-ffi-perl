@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use v5.10;
 
 use Time::HiRes qw/ gettimeofday tv_interval /;
 use Encode;
@@ -26,7 +27,7 @@ elsif ($module eq 'YAML::LibYAML::API::YPP') {
 elsif ($module eq 'YAML::PP::LibYAML') {
     require YAML::LibYAML::API;
     require YAML::PP::LibYAML::Parser;
-    warn __PACKAGE__.':'.__LINE__.": ???????? $INC{'YAML/LibYAML/API.pm'}\n";
+#    warn __PACKAGE__.':'.__LINE__.": ???????? $INC{'YAML/LibYAML/API.pm'}\n";
     $module = 'YAML::PP::LibYAML::Parser';
 }
 elsif ($module eq 'LibYAML::FFI::YPP') {
@@ -38,22 +39,23 @@ elsif ($module eq 'YAML::PP::Ref') {
     $module = 'YAML::PP::Ref::Parser';
 }
 
+my ($n) = @ARGV;
+$n //= 1;
 my $yaml;
 $yaml = do { local $/; <STDIN> };
 $yaml = decode_utf8($yaml);
 my $start = [gettimeofday];
-for (1..20) {
+for (1..$n) {
     my $parser = $module->new(
         receiver => sub {
           my ($self, undef, $event) = @_;
-#      warn __PACKAGE__.':'.__LINE__.": ?????????????\n";
 #      print encode_utf8(YAML::PP::Common::event_to_test_suite($event, { flow => 1 })), "\n";
         },
     );
     $parser->parse_string($yaml);
 }
 my $el = tv_interval($start);
-warn __PACKAGE__.':'.__LINE__.": !!!!!!!! $el\n";
+say "Elapsed ($n iterations): $el";
 
 sub usage {
     my ($rc) = @_;
